@@ -2,15 +2,12 @@ using UnityEngine;
 
 public class PuzzlePiece : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
+    [Header("Correct Position")]
+    public Vector3 correctPosition;
 
-    // Update is called once per frame
-    void Update()
+    // Set the correct position for this puzzle piece
+    public void SetCorrectPosition(Vector3 position)
     {
-        
+        correctPosition = position;
     }
 }
