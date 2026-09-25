@@ -4,9 +4,12 @@ using System.Collections.Generic;
 
 public class ImageSlicer : MonoBehaviour
 {
+    [Header("Difficulty")]
+    [SerializeField] private Difficulty difficulty = Difficulty.Easy;
+
     [Header("Puzzle Settings")]
-    [SerializeField] private int rows = 4;
-    [SerializeField] private int columns = 4;
+    [SerializeField] private int rows = 3;
+    [SerializeField] private int columns = 3;
 
     [Header("Puzzle Playground")]
     [SerializeField] private float playgroundWidth = 306f;
@@ -20,12 +23,22 @@ public class ImageSlicer : MonoBehaviour
 
     private RectTransform puzzleArea;
 
+
+    // ====================================================
+    // START
+    // ====================================================
+
     private void Start()
     {
         puzzleArea = GetComponent<RectTransform>();
 
         GeneratePuzzle();
     }
+
+
+    // ====================================================
+    // GENERATE PUZZLE
+    // ====================================================
 
     public void GeneratePuzzle()
     {
@@ -34,6 +47,7 @@ public class ImageSlicer : MonoBehaviour
             Debug.LogError(
                 "ImageSlicer must be attached to ImageContainer!"
             );
+
             return;
         }
 
@@ -42,6 +56,7 @@ public class ImageSlicer : MonoBehaviour
             Debug.LogError(
                 "Puzzle Piece Prefab is not assigned!"
             );
+
             return;
         }
 
@@ -50,13 +65,36 @@ public class ImageSlicer : MonoBehaviour
             Debug.LogError(
                 "Puzzle Image is not assigned!"
             );
+
             return;
         }
 
-        // Remove old puzzle pieces
+
+        // ------------------------------------------------
+        // GET GRID SIZE FROM DIFFICULTY
+        // ------------------------------------------------
+
+        rows = DifficultySystem.GetGridSize(difficulty);
+        columns = DifficultySystem.GetGridSize(difficulty);
+
+        int totalPieces =
+            DifficultySystem.GetPieceCount(difficulty);
+
+        Debug.Log(
+            "Difficulty: " + difficulty +
+            " | Grid: " + rows + "x" + columns +
+            " | Pieces: " + totalPieces
+        );
+
+
+        // ------------------------------------------------
+        // REMOVE OLD PUZZLE PIECES
+        // ------------------------------------------------
+
         for (int i = puzzleArea.childCount - 1; i >= 0; i--)
         {
-            Transform child = puzzleArea.GetChild(i);
+            Transform child =
+                puzzleArea.GetChild(i);
 
             if (child.GetComponent<PuzzlePiecePlacement>() != null)
             {
@@ -64,7 +102,11 @@ public class ImageSlicer : MonoBehaviour
             }
         }
 
-        // Disable GridLayoutGroup
+
+        // ------------------------------------------------
+        // DISABLE GRID LAYOUT GROUP
+        // ------------------------------------------------
+
         GridLayoutGroup grid =
             puzzleArea.GetComponent<GridLayoutGroup>();
 
@@ -72,6 +114,7 @@ public class ImageSlicer : MonoBehaviour
         {
             grid.enabled = false;
         }
+
 
         // ------------------------------------------------
         // IMAGE SIZE
@@ -89,6 +132,7 @@ public class ImageSlicer : MonoBehaviour
         float sourcePieceHeight =
             sourceRect.height / rows;
 
+
         // ------------------------------------------------
         // PLAYGROUND PIECE SIZE
         // ------------------------------------------------
@@ -98,6 +142,7 @@ public class ImageSlicer : MonoBehaviour
 
         float pieceHeight =
             playgroundHeight / rows;
+
 
         // ------------------------------------------------
         // CORRECT POSITIONS
@@ -126,6 +171,7 @@ public class ImageSlicer : MonoBehaviour
             }
         }
 
+
         // ------------------------------------------------
         // CREATE PUZZLE PIECES
         // ------------------------------------------------
@@ -140,6 +186,11 @@ public class ImageSlicer : MonoBehaviour
                 int index =
                     row * columns + col;
 
+
+                // ----------------------------------------
+                // CREATE PIECE
+                // ----------------------------------------
+
                 GameObject piece =
                     Instantiate(
                         puzzlePiecePrefab,
@@ -150,6 +201,11 @@ public class ImageSlicer : MonoBehaviour
                     "PuzzlePiece_" +
                     (index + 1);
 
+
+                // ----------------------------------------
+                // RECT TRANSFORM
+                // ----------------------------------------
+
                 RectTransform rect =
                     piece.GetComponent<RectTransform>();
 
@@ -159,22 +215,26 @@ public class ImageSlicer : MonoBehaviour
                         pieceHeight
                     );
 
-                // ------------------------------------------------
+
+                // ----------------------------------------
                 // CREATE DIFFERENT IMAGE SECTION
-                // ------------------------------------------------
+                // ----------------------------------------
 
                 float spriteX =
                     sourceRect.x +
                     col * sourcePieceWidth;
 
+
                 // Unity texture coordinates start
                 // from the BOTTOM, while our puzzle rows
                 // start from the TOP.
+
                 float spriteY =
                     sourceRect.y +
                     sourceRect.height -
                     (row + 1) *
                     sourcePieceHeight;
+
 
                 Rect pieceRect =
                     new Rect(
@@ -183,6 +243,11 @@ public class ImageSlicer : MonoBehaviour
                         sourcePieceWidth,
                         sourcePieceHeight
                     );
+
+
+                // ----------------------------------------
+                // CREATE SPRITE
+                // ----------------------------------------
 
                 Sprite pieceSprite =
                     Sprite.Create(
@@ -196,6 +261,11 @@ public class ImageSlicer : MonoBehaviour
                     "PuzzlePieceSprite_" +
                     (index + 1);
 
+
+                // ----------------------------------------
+                // SET IMAGE
+                // ----------------------------------------
+
                 Image image =
                     piece.GetComponent<Image>();
 
@@ -208,9 +278,10 @@ public class ImageSlicer : MonoBehaviour
                         false;
                 }
 
-                // ------------------------------------------------
-                // CORRECT POSITION
-                // ------------------------------------------------
+
+                // ----------------------------------------
+                // SET CORRECT POSITION
+                // ----------------------------------------
 
                 PuzzlePiecePlacement placement =
                     piece.GetComponent<PuzzlePiecePlacement>();
@@ -221,15 +292,18 @@ public class ImageSlicer : MonoBehaviour
                         correctPositions[index];
                 }
 
+
                 pieces.Add(piece);
             }
         }
+
 
         // ------------------------------------------------
         // RANDOMIZE PIECES
         // ------------------------------------------------
 
         ShufflePieces(pieces);
+
 
         // ------------------------------------------------
         // RANDOM STARTING POSITIONS
@@ -249,10 +323,13 @@ public class ImageSlicer : MonoBehaviour
                 randomPosition;
         }
 
+
         Debug.Log(
-            "16 puzzle pieces generated with RANDOM positions and DIFFERENT image sections."
+            totalPieces +
+            " puzzle pieces generated with RANDOM positions and DIFFERENT image sections."
         );
     }
+
 
     // ====================================================
     // RANDOM POSITION
@@ -267,11 +344,13 @@ public class ImageSlicer : MonoBehaviour
         float pieceHeight =
             playgroundHeight / rows;
 
+
         float halfWidth =
             pieceWidth / 2f;
 
         float halfHeight =
             pieceHeight / 2f;
+
 
         float minX =
             -playgroundWidth / 2f +
@@ -281,6 +360,7 @@ public class ImageSlicer : MonoBehaviour
             playgroundWidth / 2f -
             halfWidth;
 
+
         float minY =
             -playgroundHeight / 2f +
             halfHeight;
@@ -289,9 +369,11 @@ public class ImageSlicer : MonoBehaviour
             playgroundHeight / 2f -
             halfHeight;
 
+
         Vector2 randomPosition;
 
         int attempts = 0;
+
 
         do
         {
@@ -314,8 +396,10 @@ public class ImageSlicer : MonoBehaviour
             attempts < 100
         );
 
+
         return randomPosition;
     }
+
 
     // ====================================================
     // SHUFFLE
@@ -332,6 +416,7 @@ public class ImageSlicer : MonoBehaviour
                     i + 1
                 );
 
+
             GameObject temp =
                 pieces[i];
 
@@ -341,5 +426,56 @@ public class ImageSlicer : MonoBehaviour
             pieces[randomIndex] =
                 temp;
         }
+    }
+
+
+    // ====================================================
+    // SET DIFFICULTY
+    // ====================================================
+
+    public void SetDifficulty(
+        Difficulty newDifficulty)
+    {
+        difficulty =
+            newDifficulty;
+
+        Debug.Log(
+            "Difficulty changed to: " +
+            difficulty
+        );
+    }
+
+
+    // ====================================================
+    // GET CURRENT DIFFICULTY
+    // ====================================================
+
+    public Difficulty GetDifficulty()
+    {
+        return difficulty;
+    }
+
+
+    // ====================================================
+    // GET CURRENT GRID SIZE
+    // ====================================================
+
+    public int GetGridSize()
+    {
+        return DifficultySystem.GetGridSize(
+            difficulty
+        );
+    }
+
+
+    // ====================================================
+    // GET CURRENT PIECE COUNT
+    // ====================================================
+
+    public int GetPieceCount()
+    {
+        return DifficultySystem.GetPieceCount(
+            difficulty
+        );
     }
 }
