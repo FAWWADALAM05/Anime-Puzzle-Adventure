@@ -5,11 +5,16 @@ public class PuzzleCompletion : MonoBehaviour
     [Header("Puzzle Settings")]
     [SerializeField] private int totalPieces = 16;
 
-    private int completedPieces = 0;
+    [Header("Timer")]
+    [SerializeField] private PuzzleStopwatch puzzleStopwatch;
 
+    [Header("Time Score")]
+    [SerializeField] private TimeScore timeScore;
+
+    private int completedPieces = 0;
     private bool puzzleCompleted = false;
 
-    private ImageSlicer imageSlicer;
+    [SerializeField] private ImageSlicer imageSlicer;
 
 
     // ====================================================
@@ -18,15 +23,15 @@ public class PuzzleCompletion : MonoBehaviour
 
     private void Start()
     {
-        // Find ImageSlicer on the same GameObject
-        imageSlicer =
-            GetComponent<ImageSlicer>();
+        // Find ImageSlicer automatically if not assigned
+        if (imageSlicer == null)
+        {
+            imageSlicer = FindFirstObjectByType<ImageSlicer>();
+        }
 
         if (imageSlicer != null)
         {
-            // Get total pieces from current difficulty
-            totalPieces =
-                imageSlicer.GetPieceCount();
+            totalPieces = imageSlicer.GetPieceCount();
 
             Debug.Log(
                 "Puzzle Completion Settings: " +
@@ -39,7 +44,47 @@ public class PuzzleCompletion : MonoBehaviour
         else
         {
             Debug.LogError(
-                "PuzzleCompletion: ImageSlicer component not found!"
+                "PuzzleCompletion: ImageSlicer not found!"
+            );
+        }
+
+
+        // Find PuzzleStopwatch automatically if not assigned
+        if (puzzleStopwatch == null)
+        {
+            puzzleStopwatch = FindFirstObjectByType<PuzzleStopwatch>();
+        }
+
+        if (puzzleStopwatch != null)
+        {
+            Debug.Log(
+                "PuzzleCompletion: PuzzleStopwatch connected!"
+            );
+        }
+        else
+        {
+            Debug.LogError(
+                "PuzzleCompletion: PuzzleStopwatch not found!"
+            );
+        }
+
+
+        // Find TimeScore automatically if not assigned
+        if (timeScore == null)
+        {
+            timeScore = FindFirstObjectByType<TimeScore>();
+        }
+
+        if (timeScore != null)
+        {
+            Debug.Log(
+                "PuzzleCompletion: TimeScore connected!"
+            );
+        }
+        else
+        {
+            Debug.LogError(
+                "PuzzleCompletion: TimeScore not found!"
             );
         }
     }
@@ -54,9 +99,7 @@ public class PuzzleCompletion : MonoBehaviour
         if (puzzleCompleted)
             return;
 
-
         completedPieces++;
-
 
         Debug.Log(
             "Puzzle Progress: " +
@@ -64,7 +107,6 @@ public class PuzzleCompletion : MonoBehaviour
             " / " +
             totalPieces
         );
-
 
         if (completedPieces >= totalPieces)
         {
@@ -79,11 +121,71 @@ public class PuzzleCompletion : MonoBehaviour
 
     private void CompletePuzzle()
     {
+        if (puzzleCompleted)
+            return;
+
         puzzleCompleted = true;
 
+        Debug.Log("🎉 PUZZLE COMPLETE!");
+
+
+        // ====================================================
+        // STOP TIMER
+        // ====================================================
+
+        if (puzzleStopwatch != null)
+        {
+            puzzleStopwatch.StopTimer();
+
+            Debug.Log(
+                "⏱ NEW Puzzle Stopwatch STOP command sent!"
+            );
+        }
+        else
+        {
+            Debug.LogError(
+                "PuzzleCompletion: PuzzleStopwatch is NULL!"
+            );
+
+            return;
+        }
+
+
+        // ====================================================
+        // GET COMPLETION TIME
+        // ====================================================
+
+        float completionTime =
+            puzzleStopwatch.GetCompletionTime();
+
         Debug.Log(
-            "🎉 PUZZLE COMPLETE!"
+            "⏱ COMPLETION TIME: " +
+            completionTime.ToString("F2") +
+            " seconds"
         );
+
+
+        // ====================================================
+        // CALCULATE TIME SCORE
+        // ====================================================
+
+        if (timeScore != null)
+        {
+            int score =
+                timeScore.CalculateScore(completionTime);
+
+            Debug.Log(
+                "🏆 FINAL TIME SCORE: " +
+                score +
+                " POINTS"
+            );
+        }
+        else
+        {
+            Debug.LogError(
+                "PuzzleCompletion: TimeScore is NULL!"
+            );
+        }
     }
 
 

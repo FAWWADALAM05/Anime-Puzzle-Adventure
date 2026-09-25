@@ -474,8 +474,6 @@ public class ImageSlicer : MonoBehaviour
 
     public int GetPieceCount()
     {
-        return DifficultySystem.GetPieceCount(
-            difficulty
-        );
+        return rows * columns;
     }
 }
