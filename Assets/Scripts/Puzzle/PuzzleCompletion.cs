@@ -11,6 +11,13 @@ public class PuzzleCompletion : MonoBehaviour
     [Header("Time Score")]
     [SerializeField] private TimeScore timeScore;
 
+    [Header("Moves & Score")]
+    [SerializeField] private MoveCounter moveCounter;
+    [SerializeField] private ScoreSystem scoreSystem;
+
+    [Header("Star System")]
+    [SerializeField] private StarSystem starSystem;
+
     private int completedPieces = 0;
     private bool puzzleCompleted = false;
 
@@ -49,10 +56,11 @@ public class PuzzleCompletion : MonoBehaviour
         }
 
 
-        // Find PuzzleStopwatch automatically if not assigned
+        // Find PuzzleStopwatch automatically
         if (puzzleStopwatch == null)
         {
-            puzzleStopwatch = FindFirstObjectByType<PuzzleStopwatch>();
+            puzzleStopwatch =
+                FindFirstObjectByType<PuzzleStopwatch>();
         }
 
         if (puzzleStopwatch != null)
@@ -69,10 +77,11 @@ public class PuzzleCompletion : MonoBehaviour
         }
 
 
-        // Find TimeScore automatically if not assigned
+        // Find TimeScore automatically
         if (timeScore == null)
         {
-            timeScore = FindFirstObjectByType<TimeScore>();
+            timeScore =
+                FindFirstObjectByType<TimeScore>();
         }
 
         if (timeScore != null)
@@ -85,6 +94,69 @@ public class PuzzleCompletion : MonoBehaviour
         {
             Debug.LogError(
                 "PuzzleCompletion: TimeScore not found!"
+            );
+        }
+
+
+        // Find MoveCounter automatically
+        if (moveCounter == null)
+        {
+            moveCounter =
+                FindFirstObjectByType<MoveCounter>();
+        }
+
+        if (moveCounter != null)
+        {
+            Debug.Log(
+                "PuzzleCompletion: MoveCounter connected!"
+            );
+        }
+        else
+        {
+            Debug.LogError(
+                "PuzzleCompletion: MoveCounter not found!"
+            );
+        }
+
+
+        // Find ScoreSystem automatically
+        if (scoreSystem == null)
+        {
+            scoreSystem =
+                FindFirstObjectByType<ScoreSystem>();
+        }
+
+        if (scoreSystem != null)
+        {
+            Debug.Log(
+                "PuzzleCompletion: ScoreSystem connected!"
+            );
+        }
+        else
+        {
+            Debug.LogError(
+                "PuzzleCompletion: ScoreSystem not found!"
+            );
+        }
+
+
+        // Find StarSystem automatically
+        if (starSystem == null)
+        {
+            starSystem =
+                FindFirstObjectByType<StarSystem>();
+        }
+
+        if (starSystem != null)
+        {
+            Debug.Log(
+                "PuzzleCompletion: StarSystem connected!"
+            );
+        }
+        else
+        {
+            Debug.LogError(
+                "PuzzleCompletion: StarSystem not found!"
             );
         }
     }
@@ -101,12 +173,38 @@ public class PuzzleCompletion : MonoBehaviour
 
         completedPieces++;
 
+
+        // ====================================================
+        // ADD MOVE
+        // ====================================================
+
+        if (moveCounter != null)
+        {
+            moveCounter.AddMove();
+        }
+
+
+        // ====================================================
+        // ADD MOVE SCORE
+        // ====================================================
+
+        if (scoreSystem != null)
+        {
+            scoreSystem.AddMove();
+        }
+
+
         Debug.Log(
             "Puzzle Progress: " +
             completedPieces +
             " / " +
             totalPieces
         );
+
+
+        // ====================================================
+        // CHECK COMPLETION
+        // ====================================================
 
         if (completedPieces >= totalPieces)
         {
@@ -138,7 +236,7 @@ public class PuzzleCompletion : MonoBehaviour
             puzzleStopwatch.StopTimer();
 
             Debug.Log(
-                "⏱ NEW Puzzle Stopwatch STOP command sent!"
+                "⏱ Puzzle Stopwatch STOP command sent!"
             );
         }
         else
@@ -166,17 +264,21 @@ public class PuzzleCompletion : MonoBehaviour
 
 
         // ====================================================
-        // CALCULATE TIME SCORE
+        // CALCULATE TIME BONUS
         // ====================================================
+
+        int timeBonus = 0;
 
         if (timeScore != null)
         {
-            int score =
-                timeScore.CalculateScore(completionTime);
+            timeBonus =
+                timeScore.CalculateScore(
+                    completionTime
+                );
 
             Debug.Log(
-                "🏆 FINAL TIME SCORE: " +
-                score +
+                "⏱ TIME BONUS: " +
+                timeBonus +
                 " POINTS"
             );
         }
@@ -184,6 +286,58 @@ public class PuzzleCompletion : MonoBehaviour
         {
             Debug.LogError(
                 "PuzzleCompletion: TimeScore is NULL!"
+            );
+        }
+
+
+        // ====================================================
+        // ADD TIME BONUS TO FINAL SCORE
+        // ====================================================
+
+        if (scoreSystem != null)
+        {
+            scoreSystem.AddTimeBonus(timeBonus);
+
+            Debug.Log(
+                "🏆 FINAL SCORE: " +
+                scoreSystem.Score +
+                " POINTS"
+            );
+        }
+
+
+        // ====================================================
+        // CALCULATE STARS
+        // ====================================================
+
+        if (starSystem != null && moveCounter != null)
+        {
+            starSystem.CalculateStars(
+                moveCounter.Moves
+            );
+
+            Debug.Log(
+                "⭐ FINAL STARS: " +
+                starSystem.Stars
+            );
+        }
+        else
+        {
+            Debug.LogError(
+                "PuzzleCompletion: StarSystem or MoveCounter is NULL!"
+            );
+        }
+
+
+        // ====================================================
+        // FINAL MOVE LOG
+        // ====================================================
+
+        if (moveCounter != null)
+        {
+            Debug.Log(
+                "👣 FINAL MOVES: " +
+                moveCounter.Moves
             );
         }
     }

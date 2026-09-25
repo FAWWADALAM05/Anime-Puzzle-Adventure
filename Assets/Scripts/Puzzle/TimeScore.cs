@@ -2,44 +2,43 @@ using UnityEngine;
 
 public class TimeScore : MonoBehaviour
 {
-    [Header("Score Settings")]
-    [SerializeField] private int startingScore = 1000;
+    [Header("Time Bonus Settings")]
+    [SerializeField] private int startingTimeBonus = 1000;
     [SerializeField] private int pointsLostPerSecond = 10;
 
-    private int finalScore = 0;
-
+    private int finalTimeBonus = 0;
 
     // ====================================================
-    // CALCULATE SCORE
+    // CALCULATE TIME BONUS
     // ====================================================
 
     public int CalculateScore(float completionTime)
     {
         int seconds = Mathf.FloorToInt(completionTime);
 
-        int scoreLost = seconds * pointsLostPerSecond;
+        int scoreLost =
+            seconds * pointsLostPerSecond;
 
-        finalScore = Mathf.Max(
+        finalTimeBonus = Mathf.Max(
             0,
-            startingScore - scoreLost
+            startingTimeBonus - scoreLost
         );
 
         Debug.Log(
-            "🏆 TIME SCORE: " +
-            finalScore +
-            " points"
+            "⏱ TIME BONUS: " +
+            finalTimeBonus +
+            " POINTS"
         );
 
-        return finalScore;
+        return finalTimeBonus;
     }
 
-
     // ====================================================
-    // GET FINAL SCORE
+    // GET FINAL TIME BONUS
     // ====================================================
 
     public int GetFinalScore()
     {
-        return finalScore;
+        return finalTimeBonus;
     }
 }
