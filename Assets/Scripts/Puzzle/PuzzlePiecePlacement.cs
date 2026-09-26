@@ -88,6 +88,22 @@ public class PuzzlePiecePlacement : MonoBehaviour
         }
     }
 
+    // Used by Hint System
+    public void RevealAndLockPiece()
+    {
+        if (isPlacedCorrectly)
+        {
+            return;
+        }
+
+        SnapToCorrectPosition();
+
+        Debug.Log(
+            gameObject.name +
+            " was revealed by Hint and locked!"
+        );
+    }
+
     public bool IsPlacedCorrectly()
     {
         return isPlacedCorrectly;
